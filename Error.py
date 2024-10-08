@@ -3,31 +3,56 @@
 #Tropical Year: 365.24219 days/365 solar days, 5hours, 48 minutes, 45 seconds
 
 #Average yearly error: 26 seconds
+import cv2
+import tkinter as tk
+import numpy as np
 from astroquery.jplhorizons import Horizons
 from astropy.coordinates import EarthLocation
 from astropy.time import Time
 from astropy.utils import iers
 
-# 1. Get the current time
-t = Time.now()
+root = tk.Tk()
+screen_width = root.winfo_screenwidth()
+screen_height = root.winfo_screenheight()
+root.destroy()
 
-# 2. Use JPL Horizons to get accurate Earth's heliocentric position
+width = int(screen_width/2)
+height = int(screen_height/2)
+
+AU_in_view = 3
+pixel_per_AU = int(width/AU_in_view)
+
+image = np.zeros((height, width, 3), np.uint8)
+
+#Draw Sun
+#sun_AU = 0.0047
+sun_radius = 20
+sun_location = (int(width/2),int(height/2))
+image = cv2.circle(image, sun_location, sun_radius, (130,230,250), -1) 
+
+#Draw Earth
+#earth_AU = 0.000043
+earth_radius = 10
+t = Time.now()
 # Target ID '399' is Earth, 'Sun' for the Sun, 'Geocentric' for Earth in heliocentric coordinates
 obj = Horizons(id='399', location='@sun', epochs=t.jd, id_type='majorbody')
 earth_ephemeris = obj.vectors()  # Get vector position and velocity
-
-# Print Earth's heliocentric position (X, Y, Z coordinates)
 heliocentric_position = earth_ephemeris['x'][0], earth_ephemeris['y'][0], earth_ephemeris['z'][0]
-print(f"Earth's current heliocentric position (X, Y, Z) in AU:")
-print(f"X: {heliocentric_position[0]} AU")
-print(f"Y: {heliocentric_position[1]} AU")
-print(f"Z: {heliocentric_position[2]} AU")
+earth_location = (int(heliocentric_position[0]*pixel_per_AU),int(heliocentric_position[1]*pixel_per_AU))
+image = cv2.circle(image, earth_location, earth_radius, (250,230,130), -1) 
 
-# 3. Get Earth's rotation (sidereal time)
+#Draw Earth Rotation Line
 # Update IERS data for Earth Orientation Parameters (EOP) for precise rotation tracking
-iers_a = iers.IERS_A.open(iers.IERS_A_URL)
-iers.conf.auto_download = True
+#iers_a = iers.IERS_A.open(iers.IERS_A_URL)
+#iers.conf.auto_download = True
 
 # Get sidereal time at Greenwich (related to Earth's rotation)
-sidereal_time = t.sidereal_time('mean', 'greenwich')
-print(f"\nEarth's current rotation (Greenwich Sidereal Time): {sidereal_time}")
+#sidereal_time = t.sidereal_time('mean', 'greenwich')
+#print(f"{sidereal_time}")
+image = cv2.line(image, sun_location, earth_location, (0,0,255), 2)
+
+cv2.imshow("Simulation", image)
+
+cv2.waitKey(0)
+
+cv2.destroyAllWindows()
