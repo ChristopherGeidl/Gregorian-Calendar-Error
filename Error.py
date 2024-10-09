@@ -44,14 +44,14 @@ image = cv2.circle(image, earth_location, earth_radius, (250,230,130), -1)
 
 #Draw Earth Rotation Line
 # Update IERS data for Earth Orientation Parameters (EOP) for precise rotation tracking
-#iers_a = iers.IERS_A.open(iers.IERS_A_URL)
-#iers.conf.auto_download = True
+iers_a = iers.IERS_A.open(iers.IERS_A_URL)
+iers.conf.auto_download = True
 
 # Get sidereal time at Greenwich (related to Earth's rotation)
-#sidereal_time = t.sidereal_time('mean', 'greenwich')
+sidereal_time = t.sidereal_time('mean', 'greenwich').hour
 #print(f"{sidereal_time}")
-m = (sun_location[1]-earth_location[1])/(sun_location[0]-earth_location[0])
-theta = math.atan(abs(m))
+theta = math.atan(abs((sun_location[1]-earth_location[1])/(sun_location[0]-earth_location[0])))
+theta += math.radians(sidereal_time*15)
 line_end = (int((earth_radius+2)*math.cos(theta)+earth_location[0]),int((earth_radius+2)*math.sin(theta)+earth_location[1]))
 image = cv2.line(image, line_end, earth_location, (0,0,255), 2)
 
