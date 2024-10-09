@@ -3,6 +3,7 @@
 #Tropical Year: 365.24219 days/365 solar days, 5hours, 48 minutes, 45 seconds
 
 #Average yearly error: 26 seconds
+import math
 import cv2
 import tkinter as tk
 import numpy as np
@@ -49,7 +50,10 @@ image = cv2.circle(image, earth_location, earth_radius, (250,230,130), -1)
 # Get sidereal time at Greenwich (related to Earth's rotation)
 #sidereal_time = t.sidereal_time('mean', 'greenwich')
 #print(f"{sidereal_time}")
-image = cv2.line(image, sun_location, earth_location, (0,0,255), 2)
+m = (sun_location[1]-earth_location[1])/(sun_location[0]-earth_location[0])
+theta = math.atan(abs(m))
+line_end = (int((earth_radius+2)*math.cos(theta)+earth_location[0]),int((earth_radius+2)*math.sin(theta)+earth_location[1]))
+image = cv2.line(image, line_end, earth_location, (0,0,255), 2)
 
 cv2.imshow("Simulation", image)
 
