@@ -39,7 +39,7 @@ t = Time.now()
 obj = Horizons(id='399', location='@sun', epochs=t.jd, id_type='majorbody')
 earth_ephemeris = obj.vectors()  # Get vector position and velocity
 heliocentric_position = earth_ephemeris['x'][0], earth_ephemeris['y'][0], earth_ephemeris['z'][0]
-earth_location = (int(heliocentric_position[0]*pixel_per_AU),int(heliocentric_position[1]*pixel_per_AU))
+earth_location = (int(heliocentric_position[0]*pixel_per_AU+sun_location[0]),int(heliocentric_position[1]*pixel_per_AU+sun_location[1]))
 image = cv2.circle(image, earth_location, earth_radius, (250,230,130), -1) 
 
 #Draw Earth Rotation Line
